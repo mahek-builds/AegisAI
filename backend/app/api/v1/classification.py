@@ -340,9 +340,28 @@ def classify_risk(data: RiskClassificationRequest) -> RiskClassificationResponse
 def classify_ai_system(
     data: RiskClassificationRequest, current_user: User = Depends(get_current_user)
 ):
+    
     """
-    Classify an AI system's risk level based on EU AI Act criteria.
-    This is a preliminary classification - full assessment requires more details.
+    Classify an AI system based on EU AI Act risk criteria.
+
+    This endpoint performs a preliminary risk classification
+    using the provided questionnaire responses and returns
+    the calculated risk level, compliance requirements,
+    reasons, and recommended next steps.
+
+    Args:
+        data (RiskClassificationRequest):
+            Questionnaire responses and AI system details
+            used for risk evaluation.
+
+        current_user (User):
+            Authenticated user making the request.
+
+    Returns:
+        RiskClassificationResponse:
+            Risk classification result containing the
+            determined risk level, confidence score,
+            compliance requirements, and next steps.
     """
     return classify_risk(data)
 
@@ -355,7 +374,34 @@ def classify_and_save(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Classify an AI system and save the result to the database.
+    Classify an AI system and store the assessment result.
+
+    This endpoint retrieves the specified AI system belonging
+    to the authenticated user, performs risk classification,
+    updates the system's compliance information, and creates
+    a corresponding risk assessment record in the database.
+
+    Args:
+        system_id (int):
+            Unique identifier of the AI system.
+
+        data (RiskClassificationRequest):
+            Questionnaire responses and classification input data.
+
+        db (Session):
+            Database session dependency.
+
+        current_user (User):
+            Authenticated user making the request.
+
+    Returns:
+        RiskClassificationResponse:
+            Risk classification result including compliance
+            requirements and recommended next steps.
+
+    Raises:
+        HTTPException:
+            Raised when the requested AI system is not found.
     """
     # Get the AI system
     system = (
@@ -402,11 +448,20 @@ def get_questionnaire_risk_factors(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Return the static questionnaire metadata used by the risk classification flow.
+    Retrieve questionnaire risk factors used for AI classification.
 
-    This does not query the database because these factors describe the
-    classification rules themselves, not a user's saved questionnaire answers.
-    Keep this list aligned with RiskClassificationRequest and classify_risk().
+    This endpoint returns the predefined questionnaire metadata
+    used during the AI risk classification process. The returned
+    factors define classification rules and are not user-specific.
+
+    Args:
+        current_user (User):
+            Authenticated user requesting the questionnaire metadata.
+
+    Returns:
+        List[QuestionnaireRiskFactor]:
+            List of questionnaire risk factors and associated
+            EU AI Act references.
     """
     return QUESTIONNAIRE_RISK_FACTORS
 
@@ -417,9 +472,29 @@ def bulk_classify_systems(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Classify multiple AI systems in one request.
-    Returns per-system classification results and partial failure details.
+    Classify multiple AI systems in a single request.
+
+    This endpoint retrieves AI systems associated with the
+    authenticated user, validates questionnaire responses,
+    performs risk classification for each system, and stores
+    assessment results in the database.
+
+    Args:
+        request (BulkClassificationRequest):
+            Request containing a list of AI system IDs.
+
+        db (Session):
+            Database session dependency.
+
+        current_user (User):
+            Authenticated user making the request.
+
+    Returns:
+        BulkClassificationResponse:
+            Classification results for all requested systems,
+            including any validation or processing errors.
     """
+      
     results: List[BulkClassificationItem] = []
 
     for system_id in request.system_ids:
