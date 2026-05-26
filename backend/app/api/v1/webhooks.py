@@ -6,6 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-only
 
 from typing import List
 
+from django import db
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -24,7 +25,30 @@ def create_webhook(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Register a new webhook endpoint for the current user."""
+    """
+    Create a webhook configuration for the authenticated user.
+
+    This endpoint stores a new webhook configuration
+    belonging to the current user.
+
+    Args:
+        body (WebhookCreate):
+            Payload with webhook configuration data.
+
+        current_user (User):
+            Authenticated user creating the webhook.
+
+        db (Session):
+            Database session dependency.
+
+    Returns:
+        WebhookResponse:
+            Created webhook configuration.
+
+    Raises:
+        HTTPException:
+            Raised when the webhook configuration cannot be created.
+    """
     webhook_data = body.model_dump()
     webhook_data["url"] = str(body.url)
 
@@ -45,7 +69,23 @@ def list_webhooks(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """List all webhook configs for the current user."""
+    """
+    Retrieve webhook configurations for the authenticated user.
+
+    This endpoint returns all webhook configurations
+    associated with the current user.
+
+    Args:
+        current_user (User):
+            Authenticated user requesting webhook data.
+
+        db (Session):
+            Database session dependency.
+
+    Returns:
+        List[WebhookResponse]:
+            List of webhook configurations.
+    """
     return (
         db.query(WebhookConfig)
         .filter(WebhookConfig.user_id == current_user.id)
@@ -59,7 +99,30 @@ def delete_webhook(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Delete a webhook config belonging to the current user."""
+    """
+    Delete a webhook configuration for the authenticated user.
+
+    This endpoint removes the specified webhook configuration
+    belonging to the current user.
+
+    Args:
+        webhook_id (int):
+            Unique identifier of the webhook configuration.
+
+        current_user (User):
+            Authenticated user deleting the webhook.
+
+        db (Session):
+            Database session dependency.
+
+    Returns:
+        None:
+            Returns no content on successful deletion.
+
+    Raises:
+        HTTPException:
+            Raised when the webhook configuration is not found.
+    """
     db_webhook = (
         db.query(WebhookConfig)
         .filter(
