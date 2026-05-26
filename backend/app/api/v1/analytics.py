@@ -32,10 +32,31 @@ def get_compliance_timeline(
     db: Session = Depends(get_db),
 ):
     """
-    Return daily compliance snapshots for a given AI system.
+    Retrieve compliance timeline data for an AI system.
 
-    TODO (help wanted): query ComplianceSnapshot filtered by ai_system_id and
-    snapshotted_at >= now - days. Verify the system belongs to current_user.
+    This endpoint returns daily compliance snapshots for
+    the specified AI system over the given number of days.
+
+    Args:
+        system_id (int):
+            Unique identifier of the AI system.
+
+        days (int):
+            Number of past days to include in the timeline.
+
+        current_user (User):
+            Authenticated user requesting the timeline data.
+
+        db (Session):
+            Database session dependency.
+
+    Returns:
+        ComplianceTimelineResponse:
+            Daily compliance snapshot data for the AI system.
+
+    Raises:
+        HTTPException:
+            Raised when the endpoint functionality is not implemented.
     """
     # TODO: implement — replace with real DB query
     raise HTTPException(
@@ -49,9 +70,26 @@ def get_analytics_summary(
     db: Session = Depends(get_db),
 ):
     """
-    Return aggregate compliance stats for the current user's systems.
+    Retrieve aggregate compliance statistics for AI systems.
 
-    TODO (help wanted): aggregate counts and averages from ai_systems table.
+    This endpoint returns summary analytics related to
+    the authenticated user's AI systems, including
+    compliance metrics and overall system statistics.
+
+    Args:
+        current_user (User):
+            Authenticated user requesting analytics data.
+
+        db (Session):
+            Database session dependency.
+
+    Returns:
+        dict:
+            Aggregate compliance statistics and summary data.
+
+    Raises:
+        HTTPException:
+            Raised when the endpoint functionality is not implemented.
     """
     # TODO: implement
     raise HTTPException(
